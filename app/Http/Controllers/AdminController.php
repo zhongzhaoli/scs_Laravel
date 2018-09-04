@@ -206,6 +206,22 @@ class AdminController extends Controller
                 if(count($c)) {
                     for ($i = 0; $i < count($c); $i++) {
                         DB::table("personal_user")->where("user_id", $c[$i]->user_id)->update(['job_status' => "wait"]);
+                        $user_all_arr = DB::table("users")->where("id",$c[$i]->user_id)->get()[0];
+                        //修改积分修改 (只给基础)
+                        DB::table("users")->where("id",$c[$i]->user_id)->increment("integral",5);
+                        //信用修改
+                        $xy = $user_all_arr->credit;
+                        if($xy != 100 && $xy + 10 >= 100){
+                            DB::table("users")->where("id",$c[$i]->user_id)->update(["credit" => 100]);
+                        }
+                        if($xy != 100 && $xy + 10 < 100){
+                            DB::table("users")->where("id",$c[$i]->user_id)->update(["credit" => $xy + 10]);
+                        }
+                        //经验等级
+                        $jy = $user_all_arr->experience + 20;
+                        $dj = $user_all_arr->level;
+                        $ret_le = $this->level_up($dj,$jy);
+                        DB::table("users")->where("id",$c[$i]->user_id)->update(["level" => $ret_le["level"],"experience" => $ret_le["experience"]]);
                     }
                 }
                 if($d) {
@@ -232,5 +248,25 @@ class AdminController extends Controller
         $customer = count(DB::table("customer")->where("status", "qu")->get()) - count(DB::table("customer")->where("status", "an")->get());
         $arr = ["user" => $user, "enterprise" => $enterprise, "job" => $job, "feedback" => $feedback, "customer" => $customer];
         return response()->json($arr,200);
+    }
+    //等级处理
+    public function level_up($level,$experience){
+        $level_need = $level * 100;
+        if($experience >= $level_need){
+            $level = $level + 1;
+            $experience = $experience - $level_need;
+        }
+        if($experience < 0){
+            if($level == 1){
+                $level = 1;
+                $experience = 0;
+            }
+            else {
+                $level_1_need = ($level - 1) * 100;
+                $experience = $level_1_need - (-$experience);
+                $level = $level - 1;
+            }
+        }
+        return ["level" => $level, "experience" => $experience];
     }
 }

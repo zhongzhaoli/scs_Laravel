@@ -124,6 +124,8 @@ Route::group(['middleware' => 'auth:api'],function(){
             Route::get("/enterprise/job/{id}/over", "OverController@over");
             //评价
             Route::post("/enterprise/evaluate/{id}", "EvaluateController@store");
+            //评价页面加载所要获取的兼职标题和所有学生
+            Route::get("/enterprise/evaluate/job/student/{id}", "EvaluateController@get_job_all_student");
         });
     });
     //管理员（中间件）
