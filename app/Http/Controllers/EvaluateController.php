@@ -38,6 +38,7 @@ class EvaluateController extends Controller
         $user_id = $request->user()->id;
         $a = DB::table("evaluate")->where("job_id",$id)->get();
         if(count($a)){
+            //或者使用 evaluate_status = 0 或者 1;
             return response()->json(["message" => "您已经评价过了"],400);
         }
         if(!$request->get("text")){
@@ -103,6 +104,8 @@ class EvaluateController extends Controller
             ]);
             //啥也不用加
         }
+        //标注 评价了
+        DB::table("job")->where("id",$id)->update(["evaluate_status" => "1"]);
         return response()->json(["message" => "success"],200);
     }
     //更改展示评价
