@@ -223,4 +223,14 @@ class AdminController extends Controller
             return response()->json(["message" => "找不到此兼职"],400);
         }
     }
+    //待处理小数字
+    public function admin_treated(){
+        $user = count(DB::table("personal_user")->where("status", "examine")->get());
+        $enterprise = count(DB::table("personal_enterprise")->where("status", "examine")->get());
+        $job = count(DB::table("job")->where("status", "examine")->get());
+        $feedback = count(DB::table("job_feedback")->get());
+        $customer = count(DB::table("customer")->where("status", "qu")->get()) - count(DB::table("customer")->where("status", "an")->get());
+        $arr = ["user" => $user, "enterprise" => $enterprise, "job" => $job, "feedback" => $feedback, "customer" => $customer];
+        return response()->json($arr,200);
+    }
 }

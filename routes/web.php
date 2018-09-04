@@ -177,6 +177,9 @@ Route::group(['middleware' => 'auth:api'],function(){
 //-------------------------------------------------------------------------//
         //管理员兼职完结（线下收钱后）
         Route::post("/admin/over_job/{id}", "AdminController@admin_job_over");
+//-------------------------------------------------------------------------//
+        //管理员列表的小数字（未处理）
+        Route::get("/admin/treated", "AdminController@admin_treated");
     });
 });
 
