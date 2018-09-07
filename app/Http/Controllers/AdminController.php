@@ -33,10 +33,10 @@ class AdminController extends Controller
             if ($c && $b) {
                 return response()->json(["message" => "success"], 200);
             } else {
-                return response()->json(["message" => "error"], 400);
+                return response()->json(["message" => "短信通知出现问题"], 400);
             }
         } else {
-            return response()->json(["message" => "error"], 400);
+            return response()->json(["message" => "找不到此用户"], 400);
         }
     }
 
@@ -54,10 +54,10 @@ class AdminController extends Controller
             if ($c && $b) {
                 return response()->json(["message" => "success"], 200);
             } else {
-                return response()->json(["message" => "error"], 400);
+                return response()->json(["message" => "短信通知出现问题"], 400);
             }
         } else {
-            return response()->json(["message" => "error"], 400);
+            return response()->json(["message" => "找不到此用户"], 400);
         }
     }
 
@@ -100,7 +100,7 @@ class AdminController extends Controller
             $b = $qc->sendcode(Job::find($id)->to_user->name, "", "149681");
             return response()->json(["message" => "success"], 200);
         } else {
-            return response()->json(["message" => "error"], 400);
+            return response()->json(["message" => "修改兼职状态薪酬出错"], 400);
         }
     }
 
@@ -114,7 +114,7 @@ class AdminController extends Controller
             return response()->json(["message" => "success"], 200);
         }
         else{
-            return response()->json(["message" => "error"], 400);
+            return response()->json(["message" => "修改兼职状态出错"], 400);
         }
     }
     //条件搜索
@@ -167,10 +167,10 @@ class AdminController extends Controller
             if ($c && $b) {
                 return response()->json(["message" => "success"], 200);
             } else {
-                return response()->json(["message" => "error"], 400);
+                return response()->json(["message" => "短信通知出现问题"], 400);
             }
         } else {
-            return response()->json(["message" => "error"], 400);
+            return response()->json(["message" => "找不到此企业"], 400);
         }
     }
 
@@ -186,10 +186,10 @@ class AdminController extends Controller
             if ($c && $b) {
                 return response()->json(["message" => "success"], 200);
             } else {
-                return response()->json(["message" => "error"], 400);
+                return response()->json(["message" => "短信通知出现问题"], 400);
             }
         } else {
-            return response()->json(["message" => "error"], 400);
+            return response()->json(["message" => "找不到此企业"], 400);
         }
     }
     //管理员完结兼职（线下收到钱后）
@@ -222,6 +222,9 @@ class AdminController extends Controller
                         $dj = $user_all_arr->level;
                         $ret_le = $this->level_up($dj,$jy);
                         DB::table("users")->where("id",$c[$i]->user_id)->update(["level" => $ret_le["level"],"experience" => $ret_le["experience"]]);
+                        //账单
+                        $bill = new BillController();
+                        $bill->bill_create($c[$i]->user_id,10,20,5,date("Y-m-d H:i:s"),"完成兼职");
                     }
                 }
                 if($d) {
@@ -249,7 +252,7 @@ class AdminController extends Controller
         $arr = ["user" => $user, "enterprise" => $enterprise, "job" => $job, "feedback" => $feedback, "customer" => $customer];
         return response()->json($arr,200);
     }
-    //等级处理
+    //等级处理  功能函数
     public function level_up($level,$experience){
         $level_need = $level * 100;
         if($experience >= $level_need){
@@ -268,5 +271,25 @@ class AdminController extends Controller
             }
         }
         return ["level" => $level, "experience" => $experience];
+    }
+    //admin_over兼职 并且获取企业对学生的评价和平台评价
+    public function admin_over_job_student_evaluate(Request $request){
+        $a = DB::table("job")->where("status","admin_over")->get();
+        if(count($a)){
+            for($i = 0; $i < count($a); $i++){
+                //平台评价
+                $e = DB::table("evaluate")->where("job_id",$a[$i]->id)->get()[0];
+                $a[$i]->evaluate = $e;
+                //学生评价
+                $b = DB::table("evaluate_student")->where("job_id",$a[$i]->id)->get();
+                 if(count($b)){
+                     for($j = 0; $j < count($b); $j++){
+                         $b[$j]->user = DB::table("personal_user")->where("user_id",$b[$j]->user_id)->get()[0];
+                     }
+                 }
+                 $a[$i]->user = $b;
+            }
+        }
+        return $a;
     }
 }

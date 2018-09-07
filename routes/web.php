@@ -65,25 +65,33 @@ Route::group(['middleware' => 'auth:api'],function(){
     Route::post("/user_nickname_change","UserController@user_nickname");
     //获取用户角色
     Route::get("/user_role", "UserController@user_role");
-    //-------------------------------------------------------------------------//
+//-------------------------------------------------------------------------//
     //提出问题
     Route::post("/customer", "CustomerController@store");
     //我提出的问题
     Route::get("/my-customer", "CustomerController@show");
 //-------------------------------------------------------------------------//
+    //查看我的信用（企业和学生）
+    Route::get("/my-credit", "CreditController@index");
+//-------------------------------------------------------------------------//
+    //账单
+    Route::get("/my-bill", "BillController@index");
+//-------------------------------------------------------------------------//
+
     //学生权限（中间件）
     Route::group(['middleware' => 'IsStudent'],function(){
         //获取个人信息
         Route::get('/user', 'UserController@index');
         //插入个人信息
         Route::post('/user_personal','PersonalController@store');
-        //删除个人信息（重新填写）
-        Route::post('/user_personal_del','PersonalController@destroy');
         //-------------------------------------------------------------------------//
         //报名兼职
         Route::post("/job-sign/{id}","JobController@job_sign");
         //查看自己的兼职
         Route::get("/my-job","JobController@my_job");
+        //-------------------------------------------------------------------------//
+        //获取自己的积分
+        Route::get("/my-integral", "UserController@get_my_integral");
         //-------------------------------------------------------------------------//
         //加入兼职权限（中间件）
         Route::group(['middleware' => 'JobSign'],function(){
@@ -171,6 +179,8 @@ Route::group(['middleware' => 'auth:api'],function(){
         Route::get("/admin/customer", "CustomerController@index");
         //回答问题
         Route::post("/admin/customer-an", "CustomerController@an");
+        //查看和去其他用户的问题
+        Route::get("/admin/customer_all/{id}", "CustomerController@show_admin");
 //-------------------------------------------------------------------------//
         //获取所有评价并分类出显示与没显示的
         Route::get("/admin/index_evaluate", "EvaluateController@admin_evaluate_index");
@@ -182,6 +192,14 @@ Route::group(['middleware' => 'auth:api'],function(){
 //-------------------------------------------------------------------------//
         //管理员列表的小数字（未处理）
         Route::get("/admin/treated", "AdminController@admin_treated");
+//-------------------------------------------------------------------------//
+        //完结的兼职和企业对学生的评价
+        Route::get("/admin/over-job/evaluate", "AdminController@admin_over_job_student_evaluate");
+//-------------------------------------------------------------------------//
+        //活动名称和状态
+        Route::get("/admin/event", "EventController@index");
+        //更改活动状态
+        Route::post("/admin/change_event/{id}", "EventController@change_type");
     });
 });
 

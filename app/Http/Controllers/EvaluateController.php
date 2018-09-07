@@ -67,6 +67,9 @@ class EvaluateController extends Controller
             $admin_fun = new AdminController();
             $ret_le = $admin_fun->level_up($dj,$jy);
             DB::table("users")->where("id",$request->get("good")[$i])->update(["level" => $ret_le["level"],"experience" => $ret_le["experience"]]);
+            //账单
+            $bill = new BillController();
+            $bill->bill_create($request->get("good")[$i],"","+15","",date("Y-m-d H:i:s"),"兼职好评");
         }
         //差评
         for($i = 0; $i < count($request->get("bad")); $i++){
@@ -93,6 +96,9 @@ class EvaluateController extends Controller
             $admin_fun = new AdminController();
             $ret_le = $admin_fun->level_up($dj,$jy);
             DB::table("users")->where("id",$request->get("bad")[$i])->update(["level" => $ret_le["level"],"experience" => $ret_le["experience"]]);
+            //账单
+            $bill = new BillController();
+            $bill->bill_create($request->get("bad")[$i],"-30","-20","-5",date("Y-m-d H:i:s"),"兼职差评");
         }
         //中评
         for($i = 0; $i < count($request->get("review")); $i++) {

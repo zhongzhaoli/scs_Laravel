@@ -11,6 +11,19 @@ class PersonalController extends Controller
     //插入个人信息
    public function store(Request $request){
        $user_id = $request->user()->id;
+       $del_count = DB::table("personal_user")->where("user_id",$user_id)->delete();
+       //活动代码开始---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+       $event = new EventController();
+       if($event->event_online("1536140152a1e660bc1e9e9c594148534a22666d55")){ //1536140152a1e660bc1e9e9c594148534a22666d55 为 活动ID
+           //活动开启
+           if(!$del_count){ //第一次填写信息 不会删除到东西
+               DB::table("users")->where("id",$user_id)->increment("integral",18);//加18积分
+               //账单
+               $bill = new BillController();
+               $bill->bill_create($user_id,"","","+18",date("Y-m-d H:i:s"),"新用户注册活动");
+           }
+       }
+       //活动代码结束---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
        $id = time() . md5(uniqid());
        $request->merge(["create_time" => date("Y-m-d H:i:s"), "id" => $id, "user_id" => $user_id]);
        //Validator 检验
@@ -78,14 +91,4 @@ class PersonalController extends Controller
        ]);
        return response()->json(["message" => "success"],200);
    }
-   //删除个人信息（重新填写）
-    public function destroy(Request $request){
-        $a = DB::table("personal_user")->where("user_id",$request->user()->id)->delete();
-        if($a){
-            return response()->json("success",200);
-        }
-        else{
-            return response()->json(["message" => "error"],400);
-        }
-    }
 }

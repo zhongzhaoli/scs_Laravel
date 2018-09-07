@@ -228,7 +228,7 @@ class JobController extends Controller
             return response()->json(["message" => "success"],200);
         }
         else{
-            return response()->json(["message" => "error"],400);
+            return response()->json(["message" => "找不到该学生信息"],400);
         }
     }
     //拒绝学生申请的兼职
@@ -245,7 +245,7 @@ class JobController extends Controller
             return response()->json(["message" => "success"],200);
         }
         else{
-            return response()->json(["message" => "error"],400);
+            return response()->json(["message" => "找不到该学生信息"],400);
         }
     }
     //通过类型查找兼职

@@ -97,4 +97,15 @@ class UserController extends Controller
         DB::table("users")->where("id",$request->user()->id)->update(["nickname" => $request->get("nickname")]);
         return response()->json(["message" => "success"],200);
     }
+    //获取自己的积分
+    public function get_my_integral(Request $request){
+        $user_id = $request->user()->id;
+        $a = DB::table("users")->where("id",$user_id)->get();
+        if(count($a)){
+            return response()->json($a[0]->integral,200);
+        }
+        else{
+            return response()->json(["message" => "找不到此用户"]);
+        }
+    }
 }

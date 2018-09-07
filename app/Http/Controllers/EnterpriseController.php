@@ -8,6 +8,7 @@ use Validator;
 
 class EnterpriseController extends Controller
 {
+    //显示企业信息
     public function show(Request $request){
         $arr = (Object) array();
         $o_user = $request->user();
@@ -22,9 +23,11 @@ class EnterpriseController extends Controller
         }
         return response()->json($arr,200);
     }
+    //插入企业信息
     public function store(Request $request){
         $user_id = $request->user()->id;
         $id = time() . md5(uniqid());
+        DB::table("personal_enterprise")->where("user_id",$user_id)->delete();
         $request->merge(["create_time" => date("Y-m-d H:i:s"), "id" => $id, "user_id" => $user_id]);
         //Validator 检验
         $result = Validator::make($request->all(),[
@@ -76,7 +79,7 @@ class EnterpriseController extends Controller
             return response()->json("success",200);
         }
         else{
-            return response()->json(["message" => "error"],400);
+            return response()->json(["message" => "删除失败"],400);
         }
     }
 }
