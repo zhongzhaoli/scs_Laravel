@@ -51,7 +51,7 @@ class EnterpriseController extends Controller
         $prove_up = new ProveUpload();
         $bo_prove = $prove_up->upload($request->get("prove"),"uploads/enterprise/");
         if(!$bo_prove){
-            return response()->json(["prove" => ["认证失败"]],400);
+            return response()->json(["message" => ["认证失败"]],400);
         }
         $prove_url = "http://122.152.249.114/scs/public/".$bo_prove;
         $request["prove"] = $prove_url;

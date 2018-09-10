@@ -77,7 +77,9 @@ Route::group(['middleware' => 'auth:api'],function(){
     //账单
     Route::get("/my-bill", "BillController@index");
 //-------------------------------------------------------------------------//
-
+    //获取所有礼品
+    Route::get("/gift", "GiftController@index");
+//-------------------------------------------------------------------------//
     //学生权限（中间件）
     Route::group(['middleware' => 'IsStudent'],function(){
         //获取个人信息
@@ -92,6 +94,11 @@ Route::group(['middleware' => 'auth:api'],function(){
         //-------------------------------------------------------------------------//
         //获取自己的积分
         Route::get("/my-integral", "UserController@get_my_integral");
+        //-------------------------------------------------------------------------//
+        //兑换券
+        Route::post("/user/exchange_voucher/{id}", "GiftController@exchange_voucher");
+        //我的券
+        Route::get("/my-voucher", "GiftController@my_voucher");
         //-------------------------------------------------------------------------//
         //加入兼职权限（中间件）
         Route::group(['middleware' => 'JobSign'],function(){
@@ -200,6 +207,9 @@ Route::group(['middleware' => 'auth:api'],function(){
         Route::get("/admin/event", "EventController@index");
         //更改活动状态
         Route::post("/admin/change_event/{id}", "EventController@change_type");
+//-------------------------------------------------------------------------//
+        //增加礼品
+        Route::post("/admin/gift", "GiftController@store");
     });
 });
 
