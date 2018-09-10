@@ -29,7 +29,6 @@ class CustomerController extends Controller
             "text" => $request->get("text"),
             "role" => $role,
             "create_time" => $crea_time,
-            "from_qu_id" => "",
             "status" => "qu"
         ]);
         if($a){
