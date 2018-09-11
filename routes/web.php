@@ -55,6 +55,8 @@ Route::get("/job_index", "JobController@job_index");
 Route::get("/evaluate_show", "EvaluateController@index_show_evaluate");
 //评价详细
 Route::get("/evaluate_detail/{id}", "EvaluateController@show");
+//获取动态
+Route::get("/demand", "DemandController@index");
 //登录权限（中间间）
 Route::group(['middleware' => 'auth:api'],function(){
     //更改个人兼职状态
@@ -79,9 +81,7 @@ Route::group(['middleware' => 'auth:api'],function(){
 //-------------------------------------------------------------------------//
     //获取所有礼品
     Route::get("/gift", "GiftController@index");
-//-------------------------------------------------------------------------//
-    //获取动态
-    Route::get("/demand", "DemandController@index");
+
 //-------------------------------------------------------------------------//
     //学生权限（中间件）
     Route::group(['middleware' => 'IsStudent'],function(){
