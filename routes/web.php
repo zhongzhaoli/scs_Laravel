@@ -210,6 +210,12 @@ Route::group(['middleware' => 'auth:api'],function(){
 //-------------------------------------------------------------------------//
         //增加礼品
         Route::post("/admin/gift", "GiftController@store");
+        //兑换礼品
+        Route::get("/admin/exchange/{vo_id}/user/{user_id}", "AdminController@admin_exchange");
+        //兑换获取验证码
+        Route::get("/admin/exchange/code/{id}", "AdminController@admin_exchange_code");
+        //兑换验证 收到的验证码
+        Route::post("/admin/exchange/code/{id}", "AdminController@admin_exchange_yz_code");
     });
 });
 

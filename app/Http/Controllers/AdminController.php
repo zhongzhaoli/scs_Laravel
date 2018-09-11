@@ -9,6 +9,8 @@ use DB;
 use App\Job;
 use App\Personal;
 use Validator;
+use App\Gift;
+use Illuminate\Support\Facades\Redis;
 
 class AdminController extends Controller
 {
@@ -291,5 +293,64 @@ class AdminController extends Controller
             }
         }
         return $a;
+    }
+    //兑换礼品
+    public function admin_exchange($vo_id, $user_id){
+        $a = DB::table("my_voucher")->where(["id" => $vo_id, "user_id" => $user_id])->get();
+        if(count($a)){
+            if($a[0]->status == "yes"){
+                return response()->json(["message" => "此券已兑换"],400);
+            }
+            else{
+                $a[0]->voucher = Gift::find($a[0]->voucher_id);
+                $b = DB::table("personal_user")->where("user_id",$user_id)->get();
+                if(count($b)){
+                    $a[0]->user = $b[0];
+                    return response()->json($a,200);
+                }
+                else{
+                    return response()->json(["message" => "此用户还未完善信息"]);
+                }
+            }
+        }
+        else{
+            return response()->json(["message" => "此券不存在"],400);
+        }
+    }
+    //兑换验证码
+    public function admin_exchange_code(Request $request, $user_id){
+        $a = DB::table("users")->where("id",$user_id)->get();
+        if(count($a)) {
+            if (Redis::get("exchange_code_" . $a[0]->name)){
+                return response()->json(["message" => "success"],200);
+            }
+            $c = new PhoneCode();
+            $b = $c->phone_code($a[0]->name, "exchange_code_", "146507");
+            if($b == "success"){
+                return response()->json(["message" => "success"],200);
+            }
+            else{
+                return response()->json(["message" => $b],400);
+            }
+        }
+        else{
+            return response()->json(["message" => "没有找到此用户"],400);
+        }
+    }
+    //判断收到的验证码确认领取成功
+    public function admin_exchange_yz_code(Request $request, $user_id){
+        $a = DB::table("users")->where("id", $user_id)->get();
+        if (count($a)) {
+            if (Redis::get("exchange_code_" . $a[0]->name) === $request->get("code")) {
+                DB::table("my_voucher")->where("id",$request->get("vou_id"))->update(["status" => "yes","use_time" => date("Y-m-d H:i:s")]);
+                return response()->json(["message" => "领取成功"],200);
+            }
+            else{
+                return response()->json(["message" => "验证码错误"],400);
+            }
+        }
+        else {
+            return response()->json(["message" => "没有找到此用户"],400);
+        }
     }
 }
