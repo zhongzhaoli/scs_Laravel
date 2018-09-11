@@ -39,6 +39,9 @@ class GiftController extends Controller
             if(!$request->get("num")){
                 return response()->json(["message" => "请填写数值"],400);
             }
+            if(!$request->get("notes")){
+                return response()->json(["message" => "请填写注释"],400);
+            }
         }
         //类型数组(规则而已，没有用到)
         $arr = [
@@ -68,7 +71,8 @@ class GiftController extends Controller
             "integral" => $request->get("integral"),
             "img" => $prove_url,
             "type" => $request->get("type"),
-            "num" => $request->get("num")
+            "num" => $request->get("num"),
+            "notes" => $request->get("notes"),
         ]);
         if($a){
             return response()->json(["message" => "success"],200);
@@ -89,7 +93,7 @@ class GiftController extends Controller
                 "user_id" => $user_id,
                 "create_time" => date("Y-m-d H:i:s"),
                 "status" => "not",
-                "type" => Gift::find($voucher_id)->type
+                "type" => Gift::find($voucher_id)->type,
             ]);
             $b = DB::table("users")->where("id", $user_id)->decrement("integral",$gift_integral);
             if($a && $b){
@@ -110,5 +114,10 @@ class GiftController extends Controller
             $a[$i]->voucher = Gift::find($a[$i]->voucher_id);
         }
         return $a;
+    }
+    //管理员删除券
+    public function destory($id){
+        DB::table("gift")->where("id",$id)->delete();
+        return response()->json(["message" => "success"]);
     }
 }

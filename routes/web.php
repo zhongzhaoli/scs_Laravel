@@ -80,6 +80,9 @@ Route::group(['middleware' => 'auth:api'],function(){
     //获取所有礼品
     Route::get("/gift", "GiftController@index");
 //-------------------------------------------------------------------------//
+    //获取动态
+    Route::get("/demand", "DemandController@index");
+//-------------------------------------------------------------------------//
     //学生权限（中间件）
     Route::group(['middleware' => 'IsStudent'],function(){
         //获取个人信息
@@ -216,6 +219,8 @@ Route::group(['middleware' => 'auth:api'],function(){
         Route::get("/admin/exchange/code/{id}", "AdminController@admin_exchange_code");
         //兑换验证 收到的验证码
         Route::post("/admin/exchange/code/{id}", "AdminController@admin_exchange_yz_code");
+        //删除礼品
+        Route::get("/admin/gift/del/{id}", "GiftController@destory");
     });
 });
 
