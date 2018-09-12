@@ -81,8 +81,9 @@ Route::group(['middleware' => 'auth:api'],function(){
 //-------------------------------------------------------------------------//
     //获取所有礼品
     Route::get("/gift", "GiftController@index");
-
 //-------------------------------------------------------------------------//
+    //上传视频
+    Route::post("/demand", "DemandController@store");
     //学生权限（中间件）
     Route::group(['middleware' => 'IsStudent'],function(){
         //获取个人信息
