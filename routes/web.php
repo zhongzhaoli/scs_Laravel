@@ -55,8 +55,6 @@ Route::get("/job_index", "JobController@job_index");
 Route::get("/evaluate_show", "EvaluateController@index_show_evaluate");
 //评价详细
 Route::get("/evaluate_detail/{id}", "EvaluateController@show");
-//获取动态
-Route::get("/demand", "DemandController@index");
 //登录权限（中间间）
 Route::group(['middleware' => 'auth:api'],function(){
     //更改个人兼职状态
@@ -82,8 +80,17 @@ Route::group(['middleware' => 'auth:api'],function(){
     //获取所有礼品
     Route::get("/gift", "GiftController@index");
 //-------------------------------------------------------------------------//
-    //上传视频
+    //发送动态
     Route::post("/demand", "DemandController@store");
+    //赞动态
+    Route::post("/demand/like/{id}", "DemandController@demand_like");
+    //获取动态
+    Route::get("/demand", "DemandController@index");
+    //我的动态
+    Route::get("/my-demand", "DemandController@my_demand");
+    //删除动态
+    Route::get("/demand/del/{id}", "DemandController@del_demand");
+//-------------------------------------------------------------------------//
     //学生权限（中间件）
     Route::group(['middleware' => 'IsStudent'],function(){
         //获取个人信息
@@ -200,6 +207,8 @@ Route::group(['middleware' => 'auth:api'],function(){
 //-------------------------------------------------------------------------//
         //管理员兼职完结（线下收钱后）
         Route::post("/admin/over_job/{id}", "AdminController@admin_job_over");
+        //管理员完结明细页面数据
+        Route::get("/admin/admin_over_money/{id}", "AdminController@admin_over_money");
 //-------------------------------------------------------------------------//
         //管理员列表的小数字（未处理）
         Route::get("/admin/treated", "AdminController@admin_treated");

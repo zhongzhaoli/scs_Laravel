@@ -10,12 +10,65 @@ class new_td{
 }
 class DemandController extends Controller
 {
+    //自定义分页。获取所有动态
     public function index(Request $request){
-        $a = DB::table("demand")->OrderBy("create_time","desc")->paginate(7);
-        return $a;
+          //url参数
+          $page = intval(($request->get('page')) ? $request->get("page") : 1);
+          //一页多少条数据
+          $page_sj_num = 7;
+          //从第几条开始
+          $from_sj = ($page -1) * 7;
+          //到第几条结束
+          $to_sj = $page * $page_sj_num;
+          $a = DB::table("demand")->OrderBy("create_time","desc")->count();
+          $has_page = ceil($a / $page_sj_num);
+          $new_obj = new new_td();
+          $new_obj->current_page = $page;
+          $new_obj->last_page = $has_page;
+          //limit查找
+          $b = DB::select("select * from demand ORDER BY create_time DESC limit ".$from_sj.",".$to_sj.";");
+          if(count($b)) {
+              for ($i = 0; $i < count($b); $i++) {
+                  $b[$i]->user = User::find($b[$i]->user_id);
+                  $b[$i]->like = DB::table("demand_like")->where("demand_id",$b[$i]->id)->count();
+                  $b[$i]->you_like = (count(DB::table("demand_like")->where(["user_id" => $request->user()->id, "demand_id" => $b[$i]->id])->get())) ? 'true' : 'false';
+              }
+          }
+          $new_obj->data = $b;
+          return response()->json($new_obj,200);
     }
+    //我的动态
+    public function my_demand(Request $request){
+        //url参数
+        $page = intval(($request->get('page')) ? $request->get("page") : 1);
+        //一页多少条数据
+        $page_sj_num = 7;
+        //从第几条开始
+        $from_sj = ($page -1) * 7;
+        //到第几条结束
+        $to_sj = $page * $page_sj_num;
+        $a = DB::table("demand")->where("user_id",$request->user()->id)->OrderBy("create_time","desc")->count();
+        $has_page = ceil($a / $page_sj_num);
+        $new_obj = new new_td();
+        $new_obj->current_page = $page;
+        $new_obj->last_page = $has_page;
+        //limit查找
+        $b = DB::select("select * from demand where user_id = ".$request->user()->id." ORDER BY create_time DESC limit ".$from_sj.",".$to_sj.";");
+        if(count($b)) {
+            for ($i = 0; $i < count($b); $i++) {
+                $b[$i]->user = User::find($b[$i]->user_id);
+                $b[$i]->like = DB::table("demand_like")->where("demand_id",$b[$i]->id)->count();
+            }
+        }
+        $new_obj->data = $b;
+        return response()->json($new_obj,200);
+    }
+    //插入动态
     public function store(Request $request){
         $a = $request->file();
+        if($a == "" && $request->get("text") == ""){
+            return response()->json(["message" => "请编辑你要发的动态"],400);
+        }
         $arr = [];
         foreach ($a as $c => $key){
             $new_obj = new new_td();
@@ -38,8 +91,6 @@ class DemandController extends Controller
             "text" => $text,
             "media_arr" => json_encode($arr),
             "create_time" => $cr_time,
-            "user_img" => User::find($user_id)->user_img,
-            "user_nickname" => User::find($user_id)->nickname,
         ]);
         if($d) {
             return response()->json(["message" => "success"], 200);
@@ -47,5 +98,23 @@ class DemandController extends Controller
         else{
             return response()->json(["message" => "发送动态失败，请稍候再试"],400);
         }
+    }
+    //动态点赞
+    public function demand_like(Request $request,$de_id){
+        $a = DB::table("demand_like")->where(["user_id" => $request->user()->id,"demand_id" => $de_id])->get();
+        if(count($a)){
+            return response()->json(["message" => "你已经赞过了"],400);
+        }
+        DB::table("demand_like")->insert([
+            "user_id" => $request->user()->id,
+            "demand_id" => $de_id,
+            "create_time" => date("Y-m-d H:i:s")
+        ]);
+        return response()->json(["message" => "success"],200);
+    }
+    public function del_demand($id){
+        DB::table("demand")->where("id",$id)->delete();
+        DB::table("demand_like")->where("demand_id",$id)->delete();
+        return response()->json(["message" => "success"],200);
     }
 }

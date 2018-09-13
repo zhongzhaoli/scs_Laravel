@@ -10,6 +10,7 @@ use App\Job;
 use App\Personal;
 use Validator;
 use App\Gift;
+use App\Leader;
 use Illuminate\Support\Facades\Redis;
 
 class AdminController extends Controller
@@ -242,6 +243,23 @@ class AdminController extends Controller
         }
         else{
             return response()->json(["message" => "找不到此兼职"],400);
+        }
+    }
+    //管理员完结明细页面数据
+    public function admin_over_money(Request $request,$id){
+        $a = DB::table("job")->where("id",$id)->get();
+        if(count($a)){
+            $b = DB::table("job_sign")->where(["job_id" => $id, "status" => "adopt"])->get();
+            for($i = 0; $i < count($b); $i++){
+                $b[$i]->user = DB::table("personal_user")->where("user_id",$b[$i]->user_id)->get()[0];
+            }
+            $leader_table = Leader::find($a[0]->leader_id);
+            $a[0]->leader = DB::table("personal_user")->where("user_id",$leader_table->user_id)->get()[0];
+            $a[0]->student = $b;
+            return $a;
+        }
+        else{
+            return response()->json(["message" => "没有此兼职"],400);
         }
     }
     //待处理小数字
