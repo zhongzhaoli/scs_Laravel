@@ -61,7 +61,7 @@ class JobController extends Controller
             "job_start_date" => "required|date",
             "job_start_time" => "required",
             "job_end_date" => "required|date",
-            "job_hour" => "required|Integer",
+            "job_hour" => "required|numeric",
             "job_money" => "required|Integer",
             "job_rest" => "required|Integer",
             "balance_type" => "required",
