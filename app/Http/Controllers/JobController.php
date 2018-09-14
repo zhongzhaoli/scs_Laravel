@@ -11,9 +11,9 @@ use App\JobSign;
 
 class JobController extends Controller
 {
-    //所有通过的兼职
+    //兼职页面展示的兼职
     public function index(){
-        $a = DB::table("job")->where("status","adopt")->get();
+        $a = DB::table("job")->where("status","adopt")->where("job_start_date", ">", date("Y-m-d"))->get();
         return response($a,200);
     }
     //首页三条

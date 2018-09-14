@@ -196,7 +196,18 @@ class AdminController extends Controller
         }
     }
     //管理员完结兼职（线下收到钱后）
-    public function admin_job_over($id){
+    public function admin_job_over(Request $request,$id){
+        foreach ($request->get("student") as $a => $key){
+            DB::table("over_money")->insert([
+                "id" => time() . md5(uniqid()),
+                "user_id" => $a,
+                "job_id" => $id,
+                "place" => $request->get("place"),
+                "money" => $key,
+                "leader_user_id" => $request->get("leader_user_id"),
+                "create_time" => date("Y-m-d H:i:s")
+            ]);
+        }
         $now = date("Y-m-d H:i:s");
         $a = DB::table("job")->where("id",$id)->get();
         if(count($a)){
@@ -298,8 +309,13 @@ class AdminController extends Controller
         if(count($a)){
             for($i = 0; $i < count($a); $i++){
                 //平台评价
-                $e = DB::table("evaluate")->where("job_id",$a[$i]->id)->get()[0];
-                $a[$i]->evaluate = $e;
+                $e = DB::table("evaluate")->where("job_id",$a[$i]->id)->get();
+                if(count($e)) {
+                    $a[$i]->evaluate = $e[0];
+                }
+                else{
+                    $a[$i]->evaluate = [];
+                }
                 //学生评价
                 $b = DB::table("evaluate_student")->where("job_id",$a[$i]->id)->get();
                  if(count($b)){
