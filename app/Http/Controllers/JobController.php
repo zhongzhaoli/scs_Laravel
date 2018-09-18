@@ -124,7 +124,16 @@ class JobController extends Controller
     public function job_sign(Request $request, $job_id){
         $job_has_num = DB::table("job")->where("id",$job_id)->select("job_has_num")->get();
         $job_want_num = DB::table("job")->where("id",$job_id)->select("job_num")->get();
-        $user_id = $request->user()->id;        
+        $job_is_timeout = DB::table("job")->where("id",$job_id)->get();
+        if(count($job_is_timeout)){
+            if(date("Y-m-d") >= $job_is_timeout[0]->job_start_date){
+                return response()->json(["message" => "兼职已经开始或已经结束"],400);
+            }
+        }
+        else{
+            return response()->json(["message" => "找不到该兼职"],400);
+        }
+        $user_id = $request->user()->id;
         $if_you_sign = DB::table("job_sign")->where(["user_id" => $user_id, "job_id" => $job_id])->where("status", "!=" , "refuse")->get();
         if(count($if_you_sign)){
             return response()->json(["message" => "你已经报过名了"],400);
