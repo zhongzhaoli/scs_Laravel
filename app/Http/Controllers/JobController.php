@@ -262,4 +262,15 @@ class JobController extends Controller
         $a = DB::table("job")->where(["job_type" => $request->get("type"),"status" => "adopt"])->get();
         return response($a,200);
     }
+    //领取薪酬方式
+    public function user_get_money(Request $request,$id){
+        $a = DB::table("over_money")->where(["job_id" => $id, "user_id" => $request->user()->id])->get();
+        if($a){
+            $a[0]->leader = DB::table("personal_user")->where("user_id",$a[0]->leader_user_id)->get()[0];
+            return response()->json($a[0],200);
+        }
+        else{
+            return response()->json(["message" => "没有找到此兼职的领取方式"],400);
+        }
+    }
 }

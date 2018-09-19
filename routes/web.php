@@ -115,6 +115,8 @@ Route::group(['middleware' => 'auth:api'],function(){
         Route::group(['middleware' => 'JobSign'],function(){
             //查看自己的兼职的负责人信息
             Route::get("/my-job-leader/{id}","LeaderController@show");
+            //领取薪酬方式
+            Route::get('/my-job-money/{id}', "JobController@user_get_money");
             //发表兼职反馈
             Route::post("/job-feedback/{id}", "JobController@job_feedback_insert");
         });
@@ -231,6 +233,12 @@ Route::group(['middleware' => 'auth:api'],function(){
         Route::post("/admin/exchange/code/{id}", "AdminController@admin_exchange_yz_code");
         //删除礼品
         Route::get("/admin/gift/del/{id}", "GiftController@destory");
+//-------------------------------------------------------------------------//
+        //keyup获取用户名
+        Route::post('/admin/user/phone', "AdminController@phone_get_user");
+        //管理员赠送积分信用经验
+        Route::post('/admin/send-user-numerical', "AdminController@send_child_numerical");
+
     });
 });
 

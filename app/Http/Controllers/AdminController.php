@@ -10,6 +10,7 @@ use App\Job;
 use App\Personal;
 use Validator;
 use App\Gift;
+use App\User;
 use App\Leader;
 use Illuminate\Support\Facades\Redis;
 
@@ -126,10 +127,10 @@ class AdminController extends Controller
         $a = '';
         //over 也代表 adopt
         if($status != "adopt") {
-            $a = DB::table("job")->where("status", $status)->get();
+            $a = DB::table("job")->where("status", $status)->orderBy("create_time","desc")->get();
         }
         else{
-            $a = DB::table("job")->where("status",$status)->orwhere("status","over")->get();
+            $a = DB::table("job")->where("status",$status)->orwhere("status","over")->orderBy("create_time","desc")->get();
         }
         if(count($a)) {
             for ($i = 0; $i < count($a); $i++) {
@@ -205,7 +206,8 @@ class AdminController extends Controller
                 "place" => $request->get("place"),
                 "money" => $key,
                 "leader_user_id" => $request->get("leader_user_id"),
-                "create_time" => date("Y-m-d H:i:s")
+                "create_time" => date("Y-m-d H:i:s"),
+                "type" => $request->get("type")
             ]);
         }
         $now = date("Y-m-d H:i:s");
@@ -219,6 +221,12 @@ class AdminController extends Controller
                 $c = DB::table("job_sign")->where("job_id",$id)->get();
                 if(count($c)) {
                     for ($i = 0; $i < count($c); $i++) {
+                        $j = DB::table("personal_user")->where("user_id", $c[$i]->user_id)->get();
+                        if(count($j)){
+                            $qc = new Qcloudsms();
+                            $b = $qc->sendcode($j[0]->phone, $a[0]->job_title, "196940");
+                            ($b == "success") ? $b = true : $b = false;
+                        }
                         DB::table("personal_user")->where("user_id", $c[$i]->user_id)->update(['job_status' => "wait"]);
                         $user_all_arr = DB::table("users")->where("id",$c[$i]->user_id)->get()[0];
                         //修改积分修改 (只给基础)
@@ -385,6 +393,42 @@ class AdminController extends Controller
         }
         else {
             return response()->json(["message" => "没有找到此用户"],400);
+        }
+    }
+    //模糊搜索通过手机验证码获取用户
+    public function phone_get_user(Request $request){
+        if($request->get("phone") === ""){
+            return response()->json([],200);
+        }
+        $a = DB::select("select * from personal_user where user_id != '0' and phone like '".$request->get("phone")."%';");
+        if(count($a)){
+            return $a;
+        }
+        else{
+            return response()->json([],200);
+        }
+    }
+    //给学生添加信用积分经验
+    public function send_child_numerical(Request $request){
+        for($i = 0; $i < count($request->get("student")); $i++){
+            $user_id = $request->get("student")[$i];
+            $a = DB::table("users")->where("id",$user_id)->get();
+            $xy = $a[0]->credit;
+            $jy = $a[0]->experience;
+            $le = $a[0]->level;
+            //增加积分
+            DB::table("users")->where("id",$user_id)->increment("integral",$request->get("integral"));
+            //增加信用
+            if($xy != 100 && $xy + $request->get("credit") >= 100){
+                DB::table("users")->where("id",$user_id)->update(["credit" => 100]);
+            }
+            if($xy != 100 && $xy + $request->get("credit") < 100){
+                DB::table("users")->where("id",$user_id)->update(["credit" => $xy + $request->get("credit")]);
+            }
+            //经验
+            $c = $this->level_up($le,$jy + $request->get("experience"));
+            DB::table("users")->where("id",$user_id)->update(["level" => $c["level"], "experience" => $c['experience']]);
+            return response()->json(["message" => "success"],200);
         }
     }
 }
