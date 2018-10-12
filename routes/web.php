@@ -91,6 +91,9 @@ Route::group(['middleware' => 'auth:api'],function(){
     //删除动态
     Route::get("/demand/del/{id}", "DemandController@del_demand");
 //-------------------------------------------------------------------------//
+    //发送失物招领（两种类型）
+    Route::post('/recruitment/send', "RecruitmentController@store");
+//-------------------------------------------------------------------------//
     //学生权限（中间件）
     Route::group(['middleware' => 'IsStudent'],function(){
         //获取个人信息

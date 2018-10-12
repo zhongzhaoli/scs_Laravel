@@ -18,7 +18,7 @@ class JobController extends Controller
     }
     //首页三条
     public function job_index(){
-        $a = DB::table("job")->where(["status" => "adopt"])->OrderBy("create_time","desc")->limit(3)->get();
+        $a = DB::table("job")->where("status", "adopt")->where("job_start_date", ">", date("Y-m-d"))->OrderBy("create_time","desc")->limit(3)->get();
         for($i = 0; $i < count($a); $i++){
 //            $a[$i]->user = DB::table("personal_enterprise")->where("user_id",$a[$i]->user_id)->get()[0];
             $a[$i]->user_img = DB::table("users")->where("id",$a[$i]->user_id)->select("user_img")->get()[0]->user_img;
@@ -54,14 +54,14 @@ class JobController extends Controller
         }
         $result = Validator::make($request->all(),[
             "job_title" => "required|Max:255",
-            "job_introduce" => "required|Max:255",
+            "job_action" => "required|Max:255",
             "job_num" => "required|Integer",
             "job_type" => "required|Max:255",
             "job_place" => "required|Max:255",
             "job_start_date" => "required|date",
             "job_start_time" => "required",
             "job_end_date" => "required|date",
-            "job_hour" => "required|numeric",
+            "job_end_time" => "required",
             "job_money" => "required|Integer",
             "job_rest" => "required|Integer",
             "balance_type" => "required",
@@ -69,7 +69,7 @@ class JobController extends Controller
             "latitude_longitude" => "required"
         ],[
             "job_title.required" => "兼职标题不能为空",
-            "job_introduce.required" => "兼职简介不能为空",
+            "job_action.required" => "兼职要求不能为空",
             "job_num.required" => "兼职人数不能为空",
             "job_num.integer" => "兼职人数不合法",
             "job_type.required" => "兼职类型不能为空",
@@ -79,8 +79,7 @@ class JobController extends Controller
             "job_start_time.required" => "兼职开始时间不能为空",
             "job_end_date.required" => "兼职结束日期不能为空",
             "job_end_date.date" => "兼职结束日期不能为空",
-            "job_hour.required" => "兼职时长不能为空",
-            "job_hour.integer" => "兼职时长不合法",
+            "job_end_time.required" => "兼职结束时间不能为空",
             "job_money.required" => "兼职工资不能为空",
             "job_money.integer" => "兼职工资不合法",
             "job_rest.required" => "兼职休息时间不能为空",
@@ -97,14 +96,14 @@ class JobController extends Controller
         DB::table("job")->insert([
             "id" => $request->get("id"),
             "job_title" => $request->get("job_title"),
-            "job_introduce" => $request->get("job_introduce"),
+            "job_action" => $request->get("job_action"),
             "job_num" => $request->get("job_num"),
             "job_type" => $request->get("job_type"),
             "job_place" => $request->get("job_place"),
             "job_start_date" => $request->get("job_start_date"),
             "job_start_time" => $request->get("job_start_time"),
             "job_end_date" => $request->get("job_end_date"),
-            "job_hour" => $request->get("job_hour"),
+            "job_end_time" => $request->get("job_end_time"),
             "job_money" => $request->get("job_money"),
             "job_detail_time" => ($request->get("job_detail_time") == "") ? "无" : $request->get("job_detail_time"),
             "job_detail_content" => ($request->get("job_detail_content") == "") ? "无" : $request->get("job_detail_content"),
@@ -259,7 +258,7 @@ class JobController extends Controller
     }
     //通过类型查找兼职
     public function find_job_type(Request $request){
-        $a = DB::table("job")->where(["job_type" => $request->get("type"),"status" => "adopt"])->get();
+        $a = DB::table("job")->where(["job_type" => $request->get("type"),"status" => "adopt"])->where("job_start_date", ">", date("Y-m-d"))->get();
         return response($a,200);
     }
     //领取薪酬方式
