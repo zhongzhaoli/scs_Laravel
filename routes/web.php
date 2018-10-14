@@ -93,6 +93,8 @@ Route::group(['middleware' => 'auth:api'],function(){
 //-------------------------------------------------------------------------//
     //发送失物招领（两种类型）
     Route::post('/recruitment/send', "RecruitmentController@store");
+    //获取所有失物招领
+    Route::get("/recruitment", "RecruitmentController@index");
 //-------------------------------------------------------------------------//
     //学生权限（中间件）
     Route::group(['middleware' => 'IsStudent'],function(){
