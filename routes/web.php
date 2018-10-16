@@ -159,6 +159,8 @@ Route::group(['middleware' => 'auth:api'],function(){
             Route::post("/enterprise/evaluate/{id}", "EvaluateController@store");
             //评价页面加载所要获取的兼职标题和所有学生
             Route::get("/enterprise/evaluate/job/student/{id}", "EvaluateController@get_job_all_student");
+            //删除自己的兼职
+            Route::get("/enterprise/delete/{id}", "JobController@destory");
         });
     });
     //管理员（中间件）

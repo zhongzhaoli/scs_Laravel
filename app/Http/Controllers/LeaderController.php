@@ -29,7 +29,7 @@ class LeaderController extends Controller
         $a = DB::table("job")->where("id",$job_id)->get();
         if(count($a)){
             $leader_id = $a[0]->leader_id;
-            return Leader::find($leader_id)->to_personal;
+            return DB::table("personal_enterprise")->where("user_id",$request->user()->id)->get();
         }
     }
     public function find_user(Request $request){
