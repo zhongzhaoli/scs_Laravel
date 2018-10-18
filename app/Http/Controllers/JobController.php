@@ -272,6 +272,7 @@ class JobController extends Controller
             return response()->json(["message" => "没有找到此兼职的领取方式"],400);
         }
     }
+    //删除兼职
     public function destory($job_id){
         $a = DB::table("job")->where("id",$job_id)->get();
         if(count($a)){
