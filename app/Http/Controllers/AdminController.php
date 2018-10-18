@@ -213,7 +213,7 @@ class AdminController extends Controller
         $now = date("Y-m-d H:i:s");
         $a = DB::table("job")->where("id",$id)->get();
         if(count($a)){
-            if($now > $a[0]->job_end_date){
+            if($now > $a[0]->job_start_date){
                 DB::table("job")->where("id",$a[0]->id)->update(["status" => "admin_over"]);
                 $d = DB::table("job_over")->insert(["job_id" => $id, "create_time" => $now]);
                 $e = DB::table("job_sign")->where("job_id",$id)->update(["over" => "over"]);

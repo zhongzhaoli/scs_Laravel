@@ -13,8 +13,9 @@ class JobController extends Controller
 {
     //兼职页面展示的兼职
     public function index(){
-        $a = DB::table("job")->where("status","adopt")->where("job_start_date", ">", date("Y-m-d"))->get();
-        return response($a,200);
+        $a = DB::table("job")->where("status","adopt")->OrderBy("create_time","desc")->get();
+        $b = DB::table("job")->where("status","over")->orWhere("status","admin_over")->OrderBy("create_time","desc")->get();
+        return response(["adopt" => $a, "over" => $b],200);
     }
     //首页三条
     public function job_index(){
