@@ -55,6 +55,10 @@ Route::get("/job_index", "JobController@job_index");
 Route::get("/evaluate_show", "EvaluateController@index_show_evaluate");
 //评价详细
 Route::get("/evaluate_detail/{id}", "EvaluateController@show");
+//-------------------------------------------------------------------------//
+//获取所有失物招领
+Route::get("/recruitment", "RecruitmentController@index");
+//-------------------------------------------------------------------------//
 //登录权限（中间间）
 Route::group(['middleware' => 'auth:api'],function(){
     //更改个人兼职状态
@@ -93,8 +97,6 @@ Route::group(['middleware' => 'auth:api'],function(){
 //-------------------------------------------------------------------------//
     //发送失物招领（两种类型）
     Route::post('/recruitment/send', "RecruitmentController@store");
-    //获取所有失物招领
-    Route::get("/recruitment", "RecruitmentController@index");
 //-------------------------------------------------------------------------//
     //学生权限（中间件）
     Route::group(['middleware' => 'IsStudent'],function(){
@@ -115,6 +117,13 @@ Route::group(['middleware' => 'auth:api'],function(){
         Route::post("/user/exchange_voucher/{id}", "GiftController@exchange_voucher");
         //我的券
         Route::get("/my-voucher", "GiftController@my_voucher");
+        //-------------------------------------------------------------------------//
+        //查看我的失物招领
+        Route::get("/my-recruitment", "RecruitmentController@my");
+        //删除我的失物招领
+        Route::get("/recruitment/delete/{id}", "RecruitmentController@destory");
+        //完成失物招领
+        Route::get("recruitment/over/{id}", "RecruitmentController@over");
         //-------------------------------------------------------------------------//
         //加入兼职权限（中间件）
         Route::group(['middleware' => 'JobSign'],function(){
@@ -245,7 +254,15 @@ Route::group(['middleware' => 'auth:api'],function(){
         Route::post('/admin/user/phone', "AdminController@phone_get_user");
         //管理员赠送积分信用经验
         Route::post('/admin/send-user-numerical', "AdminController@send_child_numerical");
-
+//-------------------------------------------------------------------------//
+        //管理员获取所有失物招领
+        Route::get("/admin/recruitment", "AdminController@index_admin");
+        //管理员删除失物招领
+        Route::get("/admin/recruitment/delete/{id}", "AdminController@recruitment_destory");
+        //已转交至301
+        Route::post("/admin/recruitment/to_scs/{id}", "AdminController@recruitment_to_scs");
+        //完成失物招领
+        Route::post("/admin/recruitment/over/{id}", "AdminController@recruitment_over");
     });
 });
 

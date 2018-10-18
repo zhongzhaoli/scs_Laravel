@@ -8,6 +8,7 @@ use Validator;
 use App\Job;
 use App\User;
 use App\JobSign;
+use App\Leader;
 
 class JobController extends Controller
 {
@@ -164,6 +165,13 @@ class JobController extends Controller
             ]);
             if($a){
                 DB::table("job")->where("id",$job_id)->increment("job_has_num");
+            }
+            $leader_id = DB::table("job")->where("id",$job_id)->get();
+            if(count($leader_id)){
+                $leader_user_id = Leader::find($leader_id[0]->leader_id)->user_id;
+                $user = User::find($leader_user_id);
+                $qc = new Qcloudsms();
+                $b = $qc->sendcode($user->name, "", "207150");
             }
             return response()->json(["message" => "success"],200);
         }

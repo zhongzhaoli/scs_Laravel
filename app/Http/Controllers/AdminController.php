@@ -431,4 +431,27 @@ class AdminController extends Controller
             return response()->json(["message" => "success"],200);
         }
     }
+    //所有失物招领
+    public function index_admin(){
+        $a = DB::table("recruitment")->get();
+        foreach ($a as $i => $key){
+            $a[$i]->user = User::find($key->user_id);
+        }
+        return response()->json($a,200);
+    }
+    //删除失物招领
+    public function recruitment_destory($id){
+        DB::table("recruitment")->where("id",$id)->delete();
+        return response()->json(["message" => "success"],200);
+    }
+    //失物招领已转交至301
+    public function recruitment_to_scs($id){
+        DB::table("recruitment")->where("id",$id)->update(["to_scs" => "1"]);
+        return response()->json(["message" => "success"],200);
+    }
+    //完成
+    public function recruitment_over($id){
+        DB::table("recruitment")->where("id",$id)->update(["over" => "1"]);
+        return response()->json(["message" => "success"],200);
+    }
 }
