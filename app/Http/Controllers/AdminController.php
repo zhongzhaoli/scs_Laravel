@@ -433,7 +433,7 @@ class AdminController extends Controller
     }
     //所有失物招领
     public function index_admin(){
-        $a = DB::table("recruitment")->get();
+        $a = DB::table("recruitment")->where("over","!=","1")->OrderBy("to_scs","desc")->OrderBy("create_time","desc")->get();
         foreach ($a as $i => $key){
             $a[$i]->user = User::find($key->user_id);
         }
