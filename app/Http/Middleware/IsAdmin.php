@@ -21,7 +21,7 @@ class IsAdmin
             return $next($request);
         }
         else{
-            return response(["message" => "你不是管理员"],400);
+            return response(["message" => "你不是管理员"],412);
         }
     }
 }

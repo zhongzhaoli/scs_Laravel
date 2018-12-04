@@ -139,6 +139,14 @@ class AdminController extends Controller
         }
         return response($a,200);
     }
+    //模糊搜索job
+    public function job_like(Request $register){
+        $a = DB::select("select * from job where status = '".$register->get("type")."' and job_title like '%".$register->get("key")."%';");
+        for($i = 0;$i < count($a); $i++){
+            $a[$i]->user = Job::find($a[$i]->id)->to_user;
+        }
+        return $a;
+    }
     //条件搜索 学生
     public function sign_condition($job_id,Request $request){
         $a = DB::table("job_sign")->where(["status" => $request->get("type"),"job_id" => $job_id])->get();
@@ -287,9 +295,28 @@ class AdminController extends Controller
         $enterprise = count(DB::table("personal_enterprise")->where("status", "examine")->get());
         $job = count(DB::table("job")->where("status", "examine")->get());
         $feedback = count(DB::table("job_feedback")->get());
-        $customer = count(DB::table("customer")->where("status", "qu")->get()) - count(DB::table("customer")->where("status", "an")->get());
+        $customer = $this->customer_num();
         $arr = ["user" => $user, "enterprise" => $enterprise, "job" => $job, "feedback" => $feedback, "customer" => $customer];
         return response()->json($arr,200);
+    }
+    //获取客服小数字
+    public function customer_num(){
+        $a = DB::table("customer")->GroupBy("user_id")->get();
+        if(count($a)){
+            $num = 0;
+            for($i = 0; $i < count($a); $i++){
+                $b = DB::table("customer")->where("user_id",$a[$i]->user_id)->OrderBy("create_time","asc")->get();
+                if(count($b)){
+                    if($b[count($b) - 1]->status == "qu"){
+                        $num = $num +1;
+                    }
+                }
+            }
+            return $num;
+        }
+        else{
+            return 0;
+        }
     }
     //等级处理  功能函数
     public function level_up($level,$experience){
@@ -453,5 +480,31 @@ class AdminController extends Controller
     public function recruitment_over($id){
         DB::table("recruitment")->where("id",$id)->update(["over" => "1"]);
         return response()->json(["message" => "success"],200);
+    }
+    //获取平台数据
+    public function scs_num(){
+        $register = DB::table("users")->get();
+        $register_no_personal = 0;
+        $register_has_personal = 0;
+        for($i = 0; $i < count($register); $i++){
+            if(count(DB::table("personal_user")->where("user_id",$register[$i]->id)->get())){
+                $register_has_personal = $register_has_personal + 1;
+            }
+            else{
+                $register_no_personal = $register_no_personal + 1;
+            }
+        }
+        $arr = [
+                "register_num" => count($register),
+                "over_job_num" => count(DB::table("job_over")->get()),
+                "register_no_personal" => $register_no_personal,
+                "personal_no_register" => count(DB::table("personal_user")->where("user_id",0)->get()),
+                "register_has_personal" => $register_has_personal,
+                "recruitment" => count(DB::table("recruitment")->get()),
+                "evaluate" => count(DB::table("evaluate")->get()),
+                "recruitment_over" => count(DB::table("recruitment")->where("over",1)->get()),
+                "personal_num" => count(DB::table("personal_user")->where("status","!=","refuse")->get())
+            ];
+        return $arr;
     }
 }

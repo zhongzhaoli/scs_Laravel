@@ -10,10 +10,21 @@ use Validator;
 class RecruitmentController extends Controller
 {
     //所有失物招领
-    public function index(){
+    public function index(Request $request){
         $a = DB::table("recruitment")->where("over","!=","1")->OrderBy("to_scs","desc")->OrderBy("create_time","desc")->get();
         foreach ($a as $i => $key){
             $a[$i]->user = User::find($key->user_id);
+            if($request->user()){
+                if($request->user()->id = $a[$i]->user_id){
+                    $a[$i]->is_my = 1;
+                }
+                else{
+                    $a[$i]->is_my = 0;
+                }
+            }
+            else{
+                $a[$i]->is_my = 0;
+            }
         }
         return response()->json($a,200);
     }
@@ -50,14 +61,21 @@ class RecruitmentController extends Controller
                 return response()->json(["message" => "图片上传失败"],400);
             }
         }
+        if($request->get("type") == 2){
+            if(!$request->get("find_address")){
+                return response()->json(["message" => "领取地址不能为空"],400);
+            }
+        }
         //Validator 检验
         $result = Validator::make($request->all(),[
             "text" => "required",
             "type" => "required|Integer",
+            "find_address" => "max:30"
         ],[
             "text.required" => "描述不能为空",
             "type.required" => "类型不能为空",
             "type.integer" => "类型不合法",
+            "find_address.max" => "地址过长"
         ]);
         if($result->fails()){
             return response()->json($result->errors(),400);
@@ -68,7 +86,8 @@ class RecruitmentController extends Controller
             "user_id" => $request->user()->id,
             "text" => $request->get("text"),
             "img_list" => json_encode($arr),
-            "type" => $request->get("type")
+            "type" => $request->get("type"),
+            "find_address" => $request->get("find_address")
         ]);
         return response()->json(["message" => "success"],200);
     }

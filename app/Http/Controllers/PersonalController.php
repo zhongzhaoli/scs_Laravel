@@ -38,7 +38,8 @@ class PersonalController extends Controller
            "sex" => "required|max:255",
            "intention" => "required|max:255",
            "prove" => "required",
-           "wechat" => "required|max:255"
+           "wechat" => "required|max:255",
+           "school" => "required"
        ],[
             "name.required" => "姓名不能为空",
             "sex.required" => "性别不能为空",
@@ -55,7 +56,8 @@ class PersonalController extends Controller
             "sex.required" => "性别不能为空",
             "intention.required" => "意向不能为空",
             "prove.required" => "认证不能为空",
-            "wechat.required" => "微信号不能为空"
+            "wechat.required" => "微信号不能为空",
+            "school.required" => "学校不能为空"
        ]);
        if($result->fails()){
            return response()->json($result->errors(),400);

@@ -108,4 +108,8 @@ class UserController extends Controller
             return response()->json(["message" => "找不到此用户"]);
         }
     }
+    //有没有登陆
+    public function is_login(Request $request){
+        return response()->json(["message" => "success"],200);
+    }
 }

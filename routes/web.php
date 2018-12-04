@@ -59,8 +59,13 @@ Route::get("/evaluate_detail/{id}", "EvaluateController@show");
 //获取所有失物招领
 Route::get("/recruitment", "RecruitmentController@index");
 //-------------------------------------------------------------------------//
+//微信conf
+Route::get("/wx/conf","WxController@index");
+//-------------------------------------------------------------------------//
 //登录权限（中间间）
 Route::group(['middleware' => 'auth:api'],function(){
+    //查看自己有没有登陆
+    Route::get("/is_login", "UserController@is_login");
     //更改个人兼职状态
     Route::post("/user_job_status",'UserController@job_status');
     //更改头像
@@ -84,16 +89,24 @@ Route::group(['middleware' => 'auth:api'],function(){
     //获取所有礼品
     Route::get("/gift", "GiftController@index");
 //-------------------------------------------------------------------------//
-    //发送动态
-    Route::post("/demand", "DemandController@store");
-    //赞动态
-    Route::post("/demand/like/{id}", "DemandController@demand_like");
-    //获取动态
-    Route::get("/demand", "DemandController@index");
-    //我的动态
-    Route::get("/my-demand", "DemandController@my_demand");
-    //删除动态
-    Route::get("/demand/del/{id}", "DemandController@del_demand");
+    //查看我的失物招领
+    Route::get("/my-recruitment", "RecruitmentController@my");
+    //删除我的失物招领
+    Route::get("/recruitment/delete/{id}", "RecruitmentController@destory");
+    //完成失物招领
+    Route::get("recruitment/over/{id}", "RecruitmentController@over");
+//------------------------------------------------------------------------//
+
+    // //发送动态
+    // Route::post("/demand", "DemandController@store");
+    // //赞动态
+    // Route::post("/demand/like/{id}", "DemandController@demand_like");
+    // //获取动态
+    // Route::get("/demand", "DemandController@index");
+    // //我的动态
+    // Route::get("/my-demand", "DemandController@my_demand");
+    // //删除动态
+    // Route::get("/demand/del/{id}", "DemandController@del_demand");
 //-------------------------------------------------------------------------//
     //发送失物招领（两种类型）
     Route::post('/recruitment/send', "RecruitmentController@store");
@@ -117,13 +130,6 @@ Route::group(['middleware' => 'auth:api'],function(){
         Route::post("/user/exchange_voucher/{id}", "GiftController@exchange_voucher");
         //我的券
         Route::get("/my-voucher", "GiftController@my_voucher");
-        //-------------------------------------------------------------------------//
-        //查看我的失物招领
-        Route::get("/my-recruitment", "RecruitmentController@my");
-        //删除我的失物招领
-        Route::get("/recruitment/delete/{id}", "RecruitmentController@destory");
-        //完成失物招领
-        Route::get("recruitment/over/{id}", "RecruitmentController@over");
         //-------------------------------------------------------------------------//
         //加入兼职权限（中间件）
         Route::group(['middleware' => 'JobSign'],function(){
@@ -196,12 +202,16 @@ Route::group(['middleware' => 'auth:api'],function(){
 //-------------------------------------------------------------------------//
         //获取审核中兼职
         Route::get("/admin/job", "AdminController@job_index");
+        //模糊搜索管理员审核兼职列表
+        Route::post("/admin/job/key", "AdminController@job_like");
         //通过审核
         Route::post("/admin/job/access/{id}", "AdminController@job_access");
         //拒绝审核
         Route::get("/admin/job/refuse/{id}", "AdminController@job_refuse");
         //条件搜索
         Route::post("/admin/job/condition", "AdminController@job_condition");
+        //取消兼职
+        Route::post("/admin/job/cancel/{id}", "JobController@destory_nb");
 //-------------------------------------------------------------------------//
         //领队人
         Route::resource("/admin/leader", "LeaderController");
@@ -263,6 +273,9 @@ Route::group(['middleware' => 'auth:api'],function(){
         Route::post("/admin/recruitment/to_scs/{id}", "AdminController@recruitment_to_scs");
         //完成失物招领
         Route::post("/admin/recruitment/over/{id}", "AdminController@recruitment_over");
+//-------------------------------------------------------------------------//
+        //获取平台数据
+        Route::get("/admin/scs-num", "AdminController@scs_num");
     });
 });
 

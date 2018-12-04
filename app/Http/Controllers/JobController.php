@@ -20,7 +20,7 @@ class JobController extends Controller
     }
     //首页三条
     public function job_index(){
-        $a = DB::table("job")->where("status", "adopt")->where("job_start_date", ">", date("Y-m-d"))->OrderBy("create_time","desc")->limit(3)->get();
+        $a = DB::table("job")->where("status", "adopt")->OrderBy("create_time","desc")->limit(3)->get();
         for($i = 0; $i < count($a); $i++){
 //            $a[$i]->user = DB::table("personal_enterprise")->where("user_id",$a[$i]->user_id)->get()[0];
             $a[$i]->user_img = DB::table("users")->where("id",$a[$i]->user_id)->select("user_img")->get()[0]->user_img;
@@ -65,7 +65,7 @@ class JobController extends Controller
             "job_end_date" => "required|date",
             "job_end_time" => "required",
             "job_money" => "required|Integer",
-            "job_rest" => "required|Integer",
+            "job_rest" => "required",
             "balance_type" => "required",
             "job_detail_place" => "required",
             "latitude_longitude" => "required"
@@ -85,7 +85,6 @@ class JobController extends Controller
             "job_money.required" => "兼职工资不能为空",
             "job_money.integer" => "兼职工资不合法",
             "job_rest.required" => "兼职休息时间不能为空",
-            "job_rest.integer" => "兼职休息时间不合法",
             "balance_type.required" => "结算方式不能为空",
             "job_detail_place.required" => "兼职详细地址不能为空",
             "latitude_longitude.required" => "地点经纬度不能为空",
@@ -117,7 +116,9 @@ class JobController extends Controller
             "job_rest" => $request->get("job_rest"),
             "balance_type" => $request->get("balance_type"),
             "job_detail_place" => $request->get("job_detail_place"),
-            "latitude_longitude" => $request->get("latitude_longitude")
+            "latitude_longitude" => $request->get("latitude_longitude"),
+            "money_type" => $request->get("money_type"),
+            "time_type" => $request->get("time_type"),
         ]);
         return response()->json(["message" => "success"],200);
     }
@@ -125,15 +126,15 @@ class JobController extends Controller
     public function job_sign(Request $request, $job_id){
         $job_has_num = DB::table("job")->where("id",$job_id)->select("job_has_num")->get();
         $job_want_num = DB::table("job")->where("id",$job_id)->select("job_num")->get();
-        $job_is_timeout = DB::table("job")->where("id",$job_id)->get();
-        if(count($job_is_timeout)){
-            if(date("Y-m-d") >= $job_is_timeout[0]->job_start_date){
-                return response()->json(["message" => "兼职已经开始或已经结束"],400);
-            }
-        }
-        else{
-            return response()->json(["message" => "找不到该兼职"],400);
-        }
+        // $job_is_timeout = DB::table("job")->where("id",$job_id)->get();
+        // if(count($job_is_timeout)){
+        //     if(date("Y-m-d") >= $job_is_timeout[0]->job_start_date){
+        //         return response()->json(["message" => "兼职已经开始或已经结束"],400);
+        //     }
+        // }
+        // else{
+        //     return response()->json(["message" => "找不到该兼职"],400);
+        // }
         $user_id = $request->user()->id;
         $if_you_sign = DB::table("job_sign")->where(["user_id" => $user_id, "job_id" => $job_id])->where("status", "!=" , "refuse")->get();
         if(count($if_you_sign)){
@@ -267,7 +268,7 @@ class JobController extends Controller
     }
     //通过类型查找兼职
     public function find_job_type(Request $request){
-        $a = DB::table("job")->where(["job_type" => $request->get("type"),"status" => "adopt"])->where("job_start_date", ">", date("Y-m-d"))->get();
+        $a = DB::table("job")->where(["job_type" => $request->get("type"),"status" => "adopt"])->get();
         return response($a,200);
     }
     //领取薪酬方式
@@ -296,5 +297,11 @@ class JobController extends Controller
         else{
             return response()->json(["messgae" => "找不到此兼职"],400);
         }
+    }
+    //取消兼职
+    public function destory_nb($job_id){
+        DB::table("job")->where("id",$job_id)->delete();
+        DB::table("job_sign")->where("id",$job_id)->delete();
+        return response()->json(["message" => "success"],200);
     }
 }

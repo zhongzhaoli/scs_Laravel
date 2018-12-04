@@ -19,7 +19,7 @@ class isStudent
             return $next($request);
         }
         else{
-            return response(["message" => "你不是学生账号"],400);
+            return response(["message" => "你不是学生账号"],412);
         }
     }
 }

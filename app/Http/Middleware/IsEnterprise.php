@@ -19,7 +19,7 @@ class IsEnterprise
             return $next($request);
         }
         else{
-            return response(["message" => "你不是企业账号"],400);
+            return response(["message" => "你不是企业账号"],412);
         }
     }
 }
