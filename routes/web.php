@@ -96,7 +96,9 @@ Route::group(['middleware' => 'auth:api'],function(){
     //完成失物招领
     Route::get("recruitment/over/{id}", "RecruitmentController@over");
 //------------------------------------------------------------------------//
-
+    //游园活动
+    Route::get("/event_garden", "EventController@garden_event_1");
+//------------------------------------------------------------------------//
     // //发送动态
     // Route::post("/demand", "DemandController@store");
     // //赞动态

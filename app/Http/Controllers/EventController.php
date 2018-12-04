@@ -32,4 +32,29 @@ class EventController extends Controller
             return false;
         }
     }
+    //新用户注册活动
+    public function new_user($del_count,$user_id){
+        //如果活动开启
+        if(!$del_count){ //第一次填写信息 不会删除到东西
+            DB::table("users")->where("id",$user_id)->increment("integral",18);//加18积分
+            //账单
+            $bill = new BillController();
+            $bill->bill_create($user_id,"","","+18",date("Y-m-d H:i:s"),"新用户注册活动");
+        }
+    }
+    //游园活动——页面刷新是否有领取，没有领取则弹窗提示领取
+    public function garden_event_1(Request $request){
+       if($this->event_online("15439101101f42de0f968142f82061deedbc9f8cae")){ //1536140152a1e660bc1e9e9c594148534a22666d55 为 活动ID
+            $user_is_receive = DB::table("event_garden")->where("user_id",$request->user()->id)->get();
+            if(!count($user_is_receive)){
+                return response()->json("",200);
+            }
+            else{
+                return response()->json("",400);
+            }
+        }
+        else{
+            return response()->json("",400);
+        }
+    }
 }

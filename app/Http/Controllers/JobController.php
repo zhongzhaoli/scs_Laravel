@@ -19,7 +19,7 @@ class JobController extends Controller
         return response(["adopt" => $a, "over" => $b],200);
     }
     //首页三条
-    public function job_index(){
+    public function job_index(Request $request){
         $a = DB::table("job")->where("status", "adopt")->OrderBy("create_time","desc")->limit(3)->get();
         for($i = 0; $i < count($a); $i++){
 //            $a[$i]->user = DB::table("personal_enterprise")->where("user_id",$a[$i]->user_id)->get()[0];
