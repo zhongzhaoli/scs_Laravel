@@ -46,11 +46,13 @@ class EventController extends Controller
     public function garden_event_1(Request $request){
        if($this->event_online("15439101101f42de0f968142f82061deedbc9f8cae")){ //1536140152a1e660bc1e9e9c594148534a22666d55 为 活动ID
             $user_is_receive = DB::table("event_garden")->where("user_id",$request->user()->id)->get();
+            //没领取
             if(!count($user_is_receive)){
-                return response()->json("",200);
+                return response()->json(["message" => "no"],200);
             }
+            //领取了
             else{
-                return response()->json("",400);
+                return response()->json(["message" => $user_is_receive->status],400);
             }
         }
         else{
