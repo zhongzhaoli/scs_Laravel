@@ -98,6 +98,8 @@ Route::group(['middleware' => 'auth:api'],function(){
 //------------------------------------------------------------------------//
     //游园活动
     Route::get("/event_garden", "EventController@garden_event_1");
+    //游园活动 领券
+    Route::get("/event_garden/get_q", "EventController@get_event_garden_q");
 //------------------------------------------------------------------------//
     // //发送动态
     // Route::post("/demand", "DemandController@store");
@@ -278,6 +280,9 @@ Route::group(['middleware' => 'auth:api'],function(){
 //-------------------------------------------------------------------------//
         //获取平台数据
         Route::get("/admin/scs-num", "AdminController@scs_num");
+//-------------------------------------------------------------------------//
+        //游园活动
+        Route::get("/admin/event_garden/{event_id}/user/{user_id}", "AdminController@event_garden");
     });
 });
 

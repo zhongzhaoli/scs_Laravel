@@ -48,15 +48,27 @@ class EventController extends Controller
             $user_is_receive = DB::table("event_garden")->where("user_id",$request->user()->id)->get();
             //没领取
             if(!count($user_is_receive)){
-                return response()->json(["message" => "no"],200);
+                return response()->json(["message" => "no"],400);
             }
             //领取了
             else{
-                return response()->json(["message" => $user_is_receive->status],400);
+                if($user_is_receive[0]->status === 'has') {
+                    return response()->json(["message" => $user_is_receive[0]->status,"user_id" => $request->user()->id, "event_id" => $user_is_receive[0]->id], 200);
+                }
+                else{
+                    return response()->json(["message" => "use"],400);
+                }
             }
         }
         else{
-            return response()->json("",400);
+            return response()->json(["message" => "活动未开启"],400);
         }
+    }
+    //游园活动一一领券
+    public function get_event_garden_q(Request $request){
+        $user_id = $request->user()->id;
+        $id = time() . md5(uniqid());
+        DB::table("event_garden")->insert(['id' => $id, "user_id" => $user_id, "status" => "has"]);
+        return response()->json(["message" => "success","user_id" => $user_id, "event_id" => $id],200);
     }
 }

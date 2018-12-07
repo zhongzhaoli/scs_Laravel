@@ -507,4 +507,20 @@ class AdminController extends Controller
             ];
         return $arr;
     }
+    //游园活动 管理员审核这张票券
+    public function event_garden($event_id, $user_id){
+        $a = DB::table("event_garden")->where(["id" => $event_id, "user_id" => $user_id])->get();
+        if(count($a)){
+            if($a[0]->status === "has"){
+                DB::table("event_garden")->where(["id" => $event_id, "user_id" => $user_id])->update(["status" => "use"]);
+                return response()->json(["message" => "ok"],200);
+            }
+            else{
+                return response()->json(["message" => "use"],400);
+            }
+        }
+        else{
+            return response()->json(["message" => "no"],400);
+        }
+    }
 }
