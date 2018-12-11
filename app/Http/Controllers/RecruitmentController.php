@@ -70,12 +70,14 @@ class RecruitmentController extends Controller
         $result = Validator::make($request->all(),[
             "text" => "required",
             "type" => "required|Integer",
-            "find_address" => "max:30"
+            "find_address" => "max:30",
+            "classify" => "required"
         ],[
             "text.required" => "描述不能为空",
             "type.required" => "类型不能为空",
             "type.integer" => "类型不合法",
-            "find_address.max" => "地址过长"
+            "find_address.max" => "地址过长",
+            "classify" => "类型不能为空"
         ]);
         if($result->fails()){
             return response()->json($result->errors(),400);
@@ -87,6 +89,7 @@ class RecruitmentController extends Controller
             "text" => $request->get("text"),
             "img_list" => json_encode($arr),
             "type" => $request->get("type"),
+            "classify" => $request->get("classify"),
             "find_address" => $request->get("find_address")
         ]);
         return response()->json(["message" => "success"],200);
@@ -101,5 +104,20 @@ class RecruitmentController extends Controller
         else{
             return response()->json(["message" => "失败"],400);
         }
+    }
+    //分类查询
+    public function condition(Request $request){
+        $a = "";
+        if($request->get("classify") == "all"){
+            $a = DB::table("recruitment")->where("over","!=","1")->OrderBy("to_scs","desc")->OrderBy("create_time","desc")->get();
+        }
+        else{
+            $a = DB::table("recruitment")->where("classify",$request->get("classify"))->where("over","!=","1")->OrderBy("to_scs","desc")->OrderBy("create_time","desc")->get();
+        }
+        foreach ($a as $i => $key){
+            $a[$i]->user = User::find($key->user_id);
+            $a[$i]->is_my = 0;
+        }
+        return response()->json($a,200);
     }
 }

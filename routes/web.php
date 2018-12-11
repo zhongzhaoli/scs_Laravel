@@ -95,6 +95,10 @@ Route::group(['middleware' => 'auth:api'],function(){
     Route::get("/recruitment/delete/{id}", "RecruitmentController@destory");
     //完成失物招领
     Route::get("recruitment/over/{id}", "RecruitmentController@over");
+    //发送失物招领（两种类型）
+    Route::post('/recruitment/send', "RecruitmentController@store");
+    //分类查询失物招领
+    Route::post("/recruitment/condition", "RecruitmentController@condition");
 //------------------------------------------------------------------------//
     //游园活动
     Route::get("/event_garden", "EventController@garden_event_1");
@@ -111,9 +115,6 @@ Route::group(['middleware' => 'auth:api'],function(){
     // Route::get("/my-demand", "DemandController@my_demand");
     // //删除动态
     // Route::get("/demand/del/{id}", "DemandController@del_demand");
-//-------------------------------------------------------------------------//
-    //发送失物招领（两种类型）
-    Route::post('/recruitment/send', "RecruitmentController@store");
 //-------------------------------------------------------------------------//
     //学生权限（中间件）
     Route::group(['middleware' => 'IsStudent'],function(){
