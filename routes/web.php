@@ -246,6 +246,9 @@ Route::group(['middleware' => 'auth:api'],function(){
         //管理员列表的小数字（未处理）
         Route::get("/admin/treated", "AdminController@admin_treated");
 //-------------------------------------------------------------------------//
+        //获取所有正在审核的报名人
+        Route::get("/admin/job-sign", "AdminController@admin_job_sign");
+//-------------------------------------------------------------------------//
         //完结的兼职和企业对学生的评价
         Route::get("/admin/over-job/evaluate", "AdminController@admin_over_job_student_evaluate");
 //-------------------------------------------------------------------------//

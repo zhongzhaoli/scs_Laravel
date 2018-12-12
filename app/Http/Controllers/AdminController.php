@@ -296,7 +296,8 @@ class AdminController extends Controller
         $job = count(DB::table("job")->where("status", "examine")->get());
         $feedback = count(DB::table("job_feedback")->get());
         $customer = $this->customer_num();
-        $arr = ["user" => $user, "enterprise" => $enterprise, "job" => $job, "feedback" => $feedback, "customer" => $customer];
+        $job_sign = count(DB::table("job_sign")->where("status", "examine")->get());
+        $arr = ["user" => $user, "enterprise" => $enterprise, "job" => $job, "feedback" => $feedback, "customer" => $customer, "job_sign" => $job_sign];
         return response()->json($arr,200);
     }
     //获取客服小数字
@@ -494,6 +495,8 @@ class AdminController extends Controller
                 $register_no_personal = $register_no_personal + 1;
             }
         }
+        $event_garden_has = count(DB::table("event_garden")->where("status", "has")->get());
+        $event_garden_use = count(DB::table("event_garden")->where("status", "use")->get());
         $arr = [
                 "register_num" => count($register),
                 "over_job_num" => count(DB::table("job_over")->get()),
@@ -503,7 +506,9 @@ class AdminController extends Controller
                 "recruitment" => count(DB::table("recruitment")->get()),
                 "evaluate" => count(DB::table("evaluate")->get()),
                 "recruitment_over" => count(DB::table("recruitment")->where("over",1)->get()),
-                "personal_num" => count(DB::table("personal_user")->where("status","!=","refuse")->get())
+                "personal_num" => count(DB::table("personal_user")->where("status","!=","refuse")->get()),
+                "event_garden_has" => $event_garden_has,
+                "event_garden_use" => $event_garden_use
             ];
         return $arr;
     }
@@ -522,5 +527,14 @@ class AdminController extends Controller
         else{
             return response()->json(["message" => "no"],400);
         }
+    }
+    //获取所有正在审核的报名人
+    public function admin_job_sign(Request $register){
+        $a = DB::table("job_sign")->where("status", "examine")->GroupBy("job_id")->get();
+        for($i = 0; $i < count($a); $i++){
+            $b = DB::table("job")->where("id", $a[$i]->job_id)->get();
+            $a[$i]->job = $b[0];
+        }
+        return response()->json($a,200);
     }
 }
